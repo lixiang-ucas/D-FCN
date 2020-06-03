@@ -45,11 +45,14 @@ git clone https://github.com/lixiang-ucas/D-FCN.git
 
 ## Data Preprocessing
 During training, we randomly select a 30mx30mx40m cuboid region from the whole scene and then randomly choose 8,192 points from the cuboid as the model input. To further reduce the risk of overfitting and make the model more robust, the selected 8,192 points are randomly dropped during the training stage. By default, the dropout ratio is set to 12.5% in the following sections. 
+
 With respect to the testing dataset, the scenes were segmented into blocks of 30mx30m grids in the horizontal direction. Note that small blocks generated at the edge of the scene are merged into the surrounding large blocks to ensure the integrity of each block. Also note that the test blocks can have substantially different numbers of points. Fortunately, due to the fully convolution nature of the proposed D-FCN model, all the points in each test block can be input directly into the model for point classification.
+
+Or one can find the pre-prcessed data at ./Data folder.
 
 ## Training & Testing
 
-python train.py
+python train_eval.py
 
 
 ## Acknowledgements
