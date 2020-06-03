@@ -43,6 +43,9 @@ git clone https://github.com/lixiang-ucas/D-FCN.git
 * Download the ISPRS Vaihinge dataset from (http://www2.isprs.org/commissions/comm3/wg4/3d-semantic-labeling.html)
 * Download the IEEE GRSS Data Fusion Contest 2018 dataset from (http://www.grss-ieee.org/community/technical-committees/data-fusion/2018-ieee-grss-data-fusion-contest/)
 
+## Data Preprocessing
+During training, we randomly select a 30mx30mx40m cuboid region from the whole scene and then randomly choose 8,192 points from the cuboid as the model input. To further reduce the risk of overfitting and make the model more robust, the selected 8,192 points are randomly dropped during the training stage. By default, the dropout ratio is set to 12.5% in the following sections. 
+With respect to the testing dataset, the scenes were segmented into blocks of 30mx30m grids in the horizontal direction. Note that small blocks generated at the edge of the scene are merged into the surrounding large blocks to ensure the integrity of each block. Also note that the test blocks can have substantially different numbers of points. Fortunately, due to the fully convolution nature of the proposed D-FCN model, all the points in each test block can be input directly into the model for point classification.
 
 ## Training & Testing
 
