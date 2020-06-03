@@ -43,7 +43,6 @@ import tf_util
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=7, help='GPU to use [default: GPU 0]')
-# parser.add_argument('--model', default='model', help='Model name [default: model]')
 parser.add_argument('--model', default='DFCN_pointnet2_group2', help='Model name [default: model]')
 parser.add_argument('--log_dir', default='log_wen_v16_sample8192_group2_lw14_F1_noheight', help='Log dir [default: log]')
 parser.add_argument('--num_point', type=int, default=8192, help='Point Number [default: 8192]')
@@ -92,15 +91,7 @@ HOSTNAME = socket.gethostname()
 NUM_CLASSES = 9
 
 
-# In[ ]:
-
-
-
-
-
 # In[6]:
-
-
 def log_string(out_str):
     LOG_FOUT.write(out_str+'\n')
     LOG_FOUT.flush()
@@ -167,9 +158,6 @@ def pc_normalize(pc):
     
 def drawPlot(x,y,name):
     plt.rcParams['savefig.dpi'] = 300 
-#    xmaxorLocator = MultipleLocator(1) 
-#    plt.gca().xaxis.set_major_locator(xmaxorLocator)
-#    plt.ylim(0,50)
     plt.plot(np.arange(0,len(x)),x,'k-',alpha=1,label='Train max: '+str(round(max(x),3))+', min: '+str(round(min(x),3)))
     plt.plot(np.arange(0,len(y)),y,'r-',alpha=1,label='Test max: '+str(round(max(y),3))+', min: '+str(round(min(y),3)))
     plt.legend()
@@ -180,9 +168,6 @@ def drawPlot(x,y,name):
     
 def drawF1Plot(x,name):
     plt.rcParams['savefig.dpi'] = 300 
-#    xmaxorLocator = MultipleLocator(1) 
-#    plt.gca().xaxis.set_major_locator(xmaxorLocator)
-#    plt.ylim(0,50)
     plt.plot(np.arange(0,len(x)),x,'k-',alpha=1,label='Train max: '+str(round(max(x),3))+', min: '+str(round(min(x),3)))
     plt.legend()
     plt.xlabel('epoch',fontsize=9)
@@ -224,7 +209,6 @@ def get_batch(dataset, index, npoints = NUM_POINT):
         isvalid = False
         for i in range(10):
             curcenter = point_set[np.random.choice(len(semantic_seg),1)[0],:]
-    #         print curcenter
             curmin = curcenter-[cub_l/2,cub_w/2,cub_h/2]
             curmax = curcenter+[cub_l/2,cub_w/2,cub_h/2]
             curmin[2] = coordmin[2]
@@ -233,7 +217,6 @@ def get_batch(dataset, index, npoints = NUM_POINT):
             cur_point_set = point_set[curchoice,:]
             cur_semantic_seg = semantic_seg[curchoice]
             cur_feat_set = trainFeats[curchoice,:]
-    #         print cur_point_set.shape,cur_semantic_seg.shape
     #         if len(cur_semantic_seg)<npoints:
             if len(cur_semantic_seg)==0:
                 continue
@@ -254,19 +237,14 @@ def get_batch(dataset, index, npoints = NUM_POINT):
         return point_set, semantic_seg, sample_weight,feature_set
     
     if(dataset =='test'):
-#         point_sets = np.zeros((1, NUM_POINT, 3))
-#         semantic_segs = np.zeros((bsize, NUM_POINT), dtype=np.int32)
-#         sample_weights = np.zeros((bsize, NUM_POINT), dtype=np.int32)
+
         cur_point_set = test_xyz[index]
         cur_semantic_seg = test_label[index].astype(np.int32)
         feature_set = test_feats[index]
-#         print cur_point_set.shape, cur_semantic_seg.shape
-#         choice = np.random.choice(len(cur_semantic_seg), npoints, replace=True)
-#         point_set = cur_point_set[choice,:] # Nx3
+
         point_set = pc_normalize_min(cur_point_set)
         semantic_seg = cur_semantic_seg # N
         sample_weight = labelweights_t[semantic_seg]
-#         print point_set.shape, semantic_seg.shape, sample_weight.shape
     
         point_sets = np.expand_dims(point_set,0) # 1xNx3
         feature_set = np.expand_dims(feature_set,0) # 1xNx3
@@ -303,29 +281,27 @@ def get_batch_wdp(dataset, batch_idx):
 import pickle as pickle
 import numpy as np
 
-train_f = open('/home/mmvc/mmvc-ny-nas/Xiang_Li_BK/Segmentation_wen/ALS_Seg/Data/train_merge_min_norm_fea.pickle', 'rb')
+# train_f = open('./Data/train_merge_min_norm_fea.pickle', 'rb')
 train_xyz, train_label, train_feats = pickle.load(train_f, encoding='bytes')
 # train_xyz, train_label, train_feats = pickle.load(train_f)
 train_f.close()
 
-test_f = open('/home/mmvc/mmvc-ny-nas/Xiang_Li_BK/Segmentation_wen/ALS_Seg/Data/test_merge_min_norm_fea_paper_height.pickle', 'rb')
+test_f = open('./Data/test_merge_min_norm_fea_paper_height.pickle', 'rb')
 test_xyz, test_label, test_feats = pickle.load(test_f, encoding='bytes')
-# test_xyz, test_label, test_feats = pickle.load(test_f)
-# test_feats = test_feats[:,1:2]
-test_feats = [tt[:,1:2] for tt in test_feats]
+test_feats = [tt[:,1:2] for tt in test_feats] #reflectance
 test_f.close()
 
 NUM_CLASSES = 9
 label_values = range(NUM_CLASSES)
 
-trainSet = np.loadtxt('/home/mmvc/mmvc-ny-nas/Xiang_Li_BK/Segmentation_wen/ALS_Seg/Data/train_height.pts',skiprows=1)
+trainSet = np.loadtxt('./Data/train_height.pts',skiprows=1)
 
 label_w = trainSet[:,4].astype('uint8')
-trainSet[:,3] = trainSet[:,3]/trainSet[:,3].max()
-trainSet[:,5] = trainSet[:,5]/trainSet[:,5].max()
+trainSet[:,3] = trainSet[:,3]/trainSet[:,3].max() #height above ground
+trainSet[:,5] = trainSet[:,5]/trainSet[:,5].max() #reflectance
 
-# trainFeats = trainSet[:,[3,5]]
-trainFeats = trainSet[:,5:6]
+# trainFeats = trainSet[:,[3,5]] #use reflectance and height above ground
+trainFeats = trainSet[:,5:6] #only use reflectance
 
 labelweights = np.zeros(9)
 tmp,_ = np.histogram(label_w,range(10))
@@ -337,11 +313,6 @@ print(labelweights)
 
 labelweights_t = np.ones(9)
 print(labelweights_t)
-
-
-# In[ ]:
-
-
 
 
 # In[11]:
@@ -357,10 +328,6 @@ def train_one_epoch(sess, ops, train_writer):
     train_idxs = np.arange(0, len(train_xyz))
     np.random.shuffle(train_idxs)
     num_batches = len(train_xyz)//BATCH_SIZE
-    
-#     num_batches = len(trainSet) // BATCH_SIZE
-    
-#     num_batches = 20
     
     total_correct = 0
     total_seen = 0
@@ -468,21 +435,7 @@ def eval_one_epoch_whole_scene(sess, ops, test_writer):
     return oa, avgF1
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
 # In[12]:
-
-
 pointclouds_pl, labels_pl, smpws_pl = placeholder_inputs(BATCH_SIZE, NUM_POINT)
 feature_pl = tf.placeholder(tf.float32, shape=(None, None, 1))
 is_training_pl = tf.placeholder(tf.bool, shape=())
@@ -494,9 +447,6 @@ bn_decay = get_bn_decay(batch)
 tf.summary.scalar('bn_decay', bn_decay)
 
 # Get model and loss 
-# pred = get_model(pointclouds_pl, is_training_pl, bn_decay=bn_decay)
-# loss = get_loss(pred, labels_pl)
-
 pred, end_points = MODEL.get_model(pointclouds_pl, is_training_pl, NUM_CLASSES, bn_decay=bn_decay, feature=feature_pl)
 loss = MODEL.get_loss(pred, labels_pl, smpws_pl)
 
@@ -590,12 +540,12 @@ for epoch in range(MAX_EPOCH):
 # In[ ]:
 
 
-checkpoint_path = 'log_lx_nosplit_v16/best_model_epoch_1107.ckpt'
-saver.restore(sess, checkpoint_path)
+# checkpoint_path = 'log_lx_nosplit_v16/best_model_epoch_1107.ckpt'
+# saver.restore(sess, checkpoint_path)
 
 
-# In[ ]:
+# # In[ ]:
 
 
-test_loss, test_acc = eval_one_epoch_whole_scene(sess, ops, test_writer)
+# test_loss, test_acc = eval_one_epoch_whole_scene(sess, ops, test_writer)
 
