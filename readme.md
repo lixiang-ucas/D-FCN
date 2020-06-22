@@ -70,12 +70,12 @@ This code is heavily borrowed from [PointSIFT](https://github.com/MVIG-SJTU/poin
 
 If you find this useful in your research, please consider citing:
 
-  @article{wen2020directionally,
-  title={Directionally constrained fully convolutional neural network for airborne LiDAR point cloud classification},
-  author={Wen, Congcong and Yang, Lina and Li, Xiang and Peng, Ling and Chi, Tianhe},
-  journal={ISPRS Journal of Photogrammetry and Remote Sensing},
-  volume={162},
-  pages={50--62},
-  year={2020},
-  publisher={Elsevier}
+  @article{wen2020directionally,   
+  title={Directionally constrained fully convolutional neural network for airborne LiDAR point cloud classification},    
+  author={Wen, Congcong and Yang, Lina and Li, Xiang and Peng, Ling and Chi, Tianhe},   
+  journal={ISPRS Journal of Photogrammetry and Remote Sensing},   
+  volume={162},   
+  pages={50--62},   
+  year={2020},   
+  publisher={Elsevier}   
 }
