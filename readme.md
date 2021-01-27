@@ -61,6 +61,7 @@ Test performance on ISPRS Vaihingen dataset:
 Test performance on DFC dataset:
 ![rst2](rst_dfc.png)
 
+Note that we report the performance without using test time augmentation.
 
 ## Acknowledgements
 This code is heavily borrowed from [PointSIFT](https://github.com/MVIG-SJTU/pointSIFT)
